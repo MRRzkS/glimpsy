@@ -13,6 +13,7 @@ export function SiteHeader({ compact = false }: SiteHeaderProps) {
             G
           </span>
           <span>Glimpsy</span>
+          <span className="brand-status">Beta</span>
         </Link>
 
         <nav className="site-nav" aria-label="Primary navigation">
@@ -21,8 +22,9 @@ export function SiteHeader({ compact = false }: SiteHeaderProps) {
           <Link href="/opportunities">Discover</Link>
         </nav>
 
-        <Link className="button button--small button--secondary" href="/opportunities">
-          Open workspace
+        <Link className="header-action" href="/opportunities">
+          Enter workspace
+          <span aria-hidden="true">↗</span>
         </Link>
       </div>
     </header>
