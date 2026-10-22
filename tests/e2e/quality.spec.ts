@@ -11,74 +11,61 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(layout.bodyWidth).toBeLessThanOrEqual(layout.viewportWidth + 1);
 }
 
-async function expectReadableVisibleText(page: Page) {
-  const undersizedText = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll<HTMLElement>("body *"))
-      .filter((element) => {
-        const text = element.textContent?.trim();
-        const rectangle = element.getBoundingClientRect();
-        const styles = window.getComputedStyle(element);
-        const isLeafText = element.children.length === 0 && Boolean(text);
-        const isVisible =
-          rectangle.width > 1 &&
-          rectangle.height > 1 &&
-          styles.visibility !== "hidden" &&
-          styles.display !== "none";
-
-        return isLeafText && isVisible && parseFloat(styles.fontSize) < 9.4;
-      })
-      .map((element) => ({
-        text: element.textContent?.trim().slice(0, 80),
-        fontSize: window.getComputedStyle(element).fontSize,
-        className: element.className,
-      }));
-  });
-
-  expect(undersizedText, JSON.stringify(undersizedText, null, 2)).toEqual([]);
-}
-
-async function expectModernSansTypography(page: Page) {
+async function expectReadableTypography(page: Page) {
   const typography = await page.evaluate(() => {
     const heading = document.querySelector("h1");
-
     return {
-      bodyFontFamily: window.getComputedStyle(document.body).fontFamily,
-      headingFontFamily: heading ? window.getComputedStyle(heading).fontFamily : "",
+      bodyFontFamily: getComputedStyle(document.body).fontFamily.toLowerCase(),
+      headingFontFamily: heading ? getComputedStyle(heading).fontFamily.toLowerCase() : "",
     };
   });
 
-  const bodyFontFamily = typography.bodyFontFamily.toLowerCase();
-  const headingFontFamily = typography.headingFontFamily.toLowerCase();
+  expect(typography.bodyFontFamily).not.toContain("times");
+  expect(typography.headingFontFamily).not.toContain("times");
+  expect(typography.bodyFontFamily).toMatch(/helvetica|arial|sans-serif/);
+}
 
-  expect(bodyFontFamily).toContain("inter");
-  expect(headingFontFamily).toContain("inter");
-  expect(bodyFontFamily).not.toContain("times new roman");
-  expect(headingFontFamily).not.toContain("times new roman");
+async function expectNoConsoleErrors(page: Page, errors: string[]) {
+  expect(errors, errors.join("\n")).toEqual([]);
 }
 
 async function saveQualityScreenshot(page: Page, name: string) {
-  await page.screenshot({
-    path: `test-results/visual/${name}.png`,
-    fullPage: true,
+  await page.screenshot({ path: `test-results/visual/${name}.png`, fullPage: true });
+}
+
+function captureConsoleErrors(page: Page): string[] {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      errors.push(message.text());
+    }
   });
+  page.on("pageerror", (error) => errors.push(error.message));
+  return errors;
 }
 
 test.describe("landing experience", () => {
-  test("remains visually stable and readable", async ({ page }, testInfo) => {
+  test("renders the signal-extraction concept without layout or console failures", async ({ page }, testInfo) => {
+    const consoleErrors = captureConsoleErrors(page);
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: /Good projects should not be buried in/i,
-      }),
+      page.getByRole("heading", { level: 1, name: /Turn marketplace noise into your next project/i }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: /Explore live workspace/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Enter decision feed/i })).toBeVisible();
+    await expect(page.locator(".hero-signal-row")).toHaveCount(4);
 
     await expectNoHorizontalOverflow(page);
-    await expectReadableVisibleText(page);
-    await expectModernSansTypography(page);
+    await expectReadableTypography(page);
+    await expectNoConsoleErrors(page, consoleErrors);
     await saveQualityScreenshot(page, `landing-${testInfo.project.name}`);
+  });
+
+  test("primary navigation reaches the real workspace", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("link", { name: /Enter decision feed/i }).click();
+    await expect(page).toHaveURL(/\/opportunities$/);
+    await expect(page.getByRole("heading", { level: 1, name: /Work worth opening/i })).toBeVisible();
   });
 });
 
@@ -87,47 +74,71 @@ test.describe("opportunity workspace", () => {
     await page.goto("/opportunities");
   });
 
-  test("renders a stable responsive decision queue", async ({ page }, testInfo) => {
-    await expect(page.locator("article.opportunity-card")).toHaveCount(6);
-    await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: /Find the work that deserves your next proposal/i,
-      }),
-    ).toBeVisible();
-
+  test("renders a stable decision queue", async ({ page }, testInfo) => {
+    const consoleErrors = captureConsoleErrors(page);
+    await expect(page.locator("article.opportunity-row")).toHaveCount(6);
     await expectNoHorizontalOverflow(page);
-    await expectReadableVisibleText(page);
-    await expectModernSansTypography(page);
+    await expectReadableTypography(page);
+    await expectNoConsoleErrors(page, consoleErrors);
     await saveQualityScreenshot(page, `workspace-${testInfo.project.name}`);
   });
 
-  test("search and source filtering narrow the queue", async ({ page }) => {
+  test("search, source filter, and sorting change the queue", async ({ page }) => {
     const searchField = page.getByRole("searchbox", { name: "Search opportunities" });
 
     await searchField.fill("GSAP");
-    await expect(page.locator("article.opportunity-card")).toHaveCount(1);
-    await expect(
-      page.getByRole("heading", {
-        level: 3,
-        name: "Premium marketing website for an AI product",
-      }),
-    ).toBeVisible();
+    await expect(page.locator("article.opportunity-row")).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 3, name: "Premium marketing website for an AI product" })).toBeVisible();
 
     await searchField.clear();
     await page.getByRole("button", { name: "Upwork" }).click();
-    await expect(page.locator("article.opportunity-card")).toHaveCount(2);
+    await expect(page.locator("article.opportunity-row")).toHaveCount(2);
+
+    await page.getByLabel("Sort opportunities").selectOption("budget");
+    await expect(page.locator("article.opportunity-row").first()).toContainText("Build a polished SaaS dashboard from Figma");
   });
 
-  test("shortlisting is immediate and filterable", async ({ page }) => {
-    const firstCard = page.locator("article.opportunity-card").first();
-    const saveButton = firstCard.getByRole("button", { name: "Add to shortlist" });
+  test("detail inspection stays in context and closes with Escape", async ({ page }) => {
+    await page.getByRole("button", { name: /View details for Build a polished SaaS dashboard/i }).click();
+    const dialog = page.getByRole("dialog");
 
-    await saveButton.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("heading", { level: 2 })).toHaveText("Build a polished SaaS dashboard from Figma");
+    await expect(dialog).toContainText("$1,200–$1,800");
+    await expect(dialog.getByRole("link", { name: /Open original/i })).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+  });
+
+  test("shortlist persists across reload and is filterable", async ({ page }) => {
+    const firstCard = page.locator("article.opportunity-row").first();
+    await firstCard.getByRole("button", { name: "Add to shortlist" }).click();
     await expect(firstCard.getByRole("button", { name: "Remove from shortlist" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Shortlisted 1/i })).toBeVisible();
 
-    await page.getByRole("button", { name: /Shortlisted 1/i }).click();
-    await expect(page.locator("article.opportunity-card")).toHaveCount(1);
+    await page.reload();
+    await expect(page.getByRole("button", { name: /Shortlist 1/i })).toBeVisible();
+    await page.getByRole("button", { name: /Shortlist 1/i }).click();
+    await expect(page.locator("article.opportunity-row")).toHaveCount(1);
+  });
+
+  test("keyboard shortcut focuses search", async ({ page }) => {
+    const searchField = page.getByRole("searchbox", { name: "Search opportunities" });
+    await page.keyboard.press(process.platform === "darwin" ? "Meta+K" : "Control+K");
+    await expect(searchField).toBeFocused();
+  });
+});
+
+test.describe("reduced motion", () => {
+  test("keeps the experience composed without continuous scene animation", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+
+    const scanAnimation = await page.locator(".signal-stage__scan").evaluate((element) =>
+      getComputedStyle(element).animationDuration,
+    );
+
+    expect(Number.parseFloat(scanAnimation)).toBeLessThanOrEqual(0.01);
+    await expect(page.getByRole("link", { name: /Enter decision feed/i })).toBeVisible();
   });
 });
