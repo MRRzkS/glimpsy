@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./responsive-polish.css";
 
 export const metadata: Metadata = {
   title: {
