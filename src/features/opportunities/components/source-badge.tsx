@@ -7,8 +7,8 @@ interface SourceBadgeProps {
 
 export function SourceBadge({ platform }: SourceBadgeProps) {
   return (
-    <span className={`source-badge source-badge--${platform}`}>
-      <span className="source-badge__dot" aria-hidden="true" />
+    <span className="source-badge" data-platform={platform}>
+      <span className="source-badge__mark" aria-hidden="true" />
       {getPlatformLabel(platform)}
     </span>
   );
