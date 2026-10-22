@@ -7,6 +7,11 @@
  */
 
 /* Keep supporting text readable even inside dense product visualizations. */
+.brand-status,
+.source-marquee__track i,
+.normalization-map__sources span,
+.saved-filter strong,
+.match-gauge__inner span,
 .signal-row__skills span,
 .signal-row__commercial span,
 .signal-score span,

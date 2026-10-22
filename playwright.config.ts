@@ -17,14 +17,18 @@ export default defineConfig({
       name: "desktop-chromium",
       use: {
         ...devices["Desktop Chrome"],
+        browserName: "chromium",
         viewport: { width: 1440, height: 1000 },
       },
     },
     {
       name: "mobile-chromium",
       use: {
-        ...devices["iPhone 13"],
+        browserName: "chromium",
         viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 1,
+        hasTouch: true,
+        isMobile: true,
       },
     },
   ],
