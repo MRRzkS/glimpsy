@@ -6,7 +6,7 @@ import {
   getPlatformLabel,
 } from "@/features/opportunities/lib/opportunity-formatters";
 
-const previewOpportunities = mockOpportunities.slice(0, 3);
+const previewOpportunities = mockOpportunities.slice(0, 4);
 const sourceNames = ["Upwork", "Contra", "Freelancer", "PeoplePerHour"];
 
 export default function HomePage() {
@@ -14,333 +14,184 @@ export default function HomePage() {
     <main className="marketing-page">
       <SiteHeader />
 
-      <section className="hero-section">
-        <div className="hero-section__grid" aria-hidden="true" />
-        <div className="hero-section__glow hero-section__glow--left" aria-hidden="true" />
-        <div className="hero-section__glow hero-section__glow--right" aria-hidden="true" />
-
-        <div className="page-shell hero-layout">
-          <div className="hero-copy">
-            <div className="hero-kicker">
-              <span className="live-dot" aria-hidden="true" />
-              Opportunity intelligence for independent developers
-            </div>
-
-            <h1 className="hero-title">
-              Good projects should not be buried in
-              <span>five different tabs.</span>
-            </h1>
-
-            <p className="hero-lead">
-              Glimpsy turns scattered freelance listings into one prioritized
-              signal feed—so you can compare the request, budget, timeline,
-              stack, and fit before deciding where to spend your time.
-            </p>
-
-            <div className="hero-actions">
-              <Link className="button button--accent" href="/opportunities">
-                Explore live workspace
-                <span aria-hidden="true">↗</span>
-              </Link>
-              <a className="button button--glass" href="#product">
-                See the system
-                <span aria-hidden="true">↓</span>
-              </a>
-            </div>
-
-            <div className="hero-proof" aria-label="Product highlights">
-              <div>
-                <strong>04</strong>
-                <span>sources normalized</span>
-              </div>
-              <div>
-                <strong>01</strong>
-                <span>decision queue</span>
-              </div>
-              <div>
-                <strong>&lt;60s</strong>
-                <span>to triage a project</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-product" aria-label="Glimpsy opportunity interface preview">
-            <div className="hero-product__topbar">
-              <div className="hero-product__brand">
-                <span className="hero-product__mark" aria-hidden="true">G</span>
-                <span>Opportunity feed</span>
-              </div>
-              <div className="hero-product__live">
-                <span className="live-dot" aria-hidden="true" />
-                Synced now
-              </div>
-            </div>
-
-            <div className="hero-product__body">
-              <aside className="signal-sidebar" aria-hidden="true">
-                <div className="signal-sidebar__active">⌁</div>
-                <div>◇</div>
-                <div>◎</div>
-                <div>↗</div>
-              </aside>
-
-              <div className="signal-main">
-                <div className="signal-toolbar">
-                  <div className="signal-search">⌕ Search opportunity or stack</div>
-                  <div className="signal-sort">Best fit ↓</div>
-                </div>
-
-                <div className="signal-list">
-                  {previewOpportunities.map((opportunity, index) => (
-                    <article
-                      className="signal-row"
-                      data-featured={index === 0}
-                      key={opportunity.id}
-                    >
-                      <div className="signal-row__main">
-                        <div className="signal-row__meta">
-                          <span>{getPlatformLabel(opportunity.source)}</span>
-                          <span>•</span>
-                          <span>{opportunity.estimatedDuration}</span>
-                        </div>
-                        <h2>{opportunity.title}</h2>
-                        <div className="signal-row__skills">
-                          {opportunity.skills.slice(0, 3).map((skill) => (
-                            <span key={skill}>{skill}</span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="signal-row__commercial">
-                        <strong>{formatOpportunityBudget(opportunity)}</strong>
-                        <span>Budget</span>
-                      </div>
-
-                      <div className="signal-score">
-                        <strong>{opportunity.matchScore}</strong>
-                        <span>fit</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-
-                <div className="hero-product__footer">
-                  <span>3 high-signal projects surfaced</span>
-                  <span>Demo intelligence layer</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="floating-insight floating-insight--top" aria-hidden="true">
-              <span>Strong match</span>
-              <strong>96%</strong>
-            </div>
-            <div className="floating-insight floating-insight--bottom" aria-hidden="true">
-              <span>Budget clarity</span>
-              <strong>Visible first</strong>
-            </div>
+      <section className="signal-hero">
+        <div className="signal-hero__index" aria-hidden="true">01</div>
+        <div className="signal-hero__copy">
+          <span className="mono-label mono-label--dark">Opportunity intelligence for independent developers</span>
+          <h1>
+            Turn marketplace
+            <span>noise into your next project.</span>
+          </h1>
+          <p>
+            Glimpsy normalizes scattered freelance briefs into one ranked decision surface—so budget,
+            timeline, stack, and fit are clear before you spend attention.
+          </p>
+          <div className="hero-actions">
+            <Link className="solid-action solid-action--large" href="/opportunities">
+              Enter decision feed <span aria-hidden="true">↗</span>
+            </Link>
+            <a className="text-link text-link--dark" href="#method">
+              See the method <span aria-hidden="true">↓</span>
+            </a>
           </div>
         </div>
 
-        <div className="source-marquee" aria-label="Supported opportunity sources">
-          <div className="source-marquee__track">
-            {[...sourceNames, ...sourceNames].map((sourceName, index) => (
-              <span key={`${sourceName}-${index}`}>
-                {sourceName}
-                <i aria-hidden="true">✦</i>
-              </span>
+        <div className="signal-stage" aria-label="Glimpsy ranked opportunity preview">
+          <div className="signal-stage__noise" aria-hidden="true">
+            {sourceNames.map((sourceName) => <span key={sourceName}>{sourceName} / new brief / budget / remote / frontend</span>)}
+          </div>
+          <div className="signal-stage__scan" aria-hidden="true" />
+          <div className="signal-stage__header">
+            <span>Live signal extraction</span>
+            <span>Ranked / demo</span>
+          </div>
+          <div className="signal-stage__rows">
+            {previewOpportunities.map((opportunity, index) => (
+              <article className="hero-signal-row" data-primary={index === 0} key={opportunity.id}>
+                <span className="hero-signal-row__rank">0{index + 1}</span>
+                <div>
+                  <small>{getPlatformLabel(opportunity.source)}</small>
+                  <strong>{opportunity.title}</strong>
+                  <span>{opportunity.skills.slice(0, 3).join(" · ")}</span>
+                </div>
+                <div className="hero-signal-row__value">
+                  <strong>{opportunity.matchScore}</strong>
+                  <span>{formatOpportunityBudget(opportunity)}</span>
+                </div>
+              </article>
             ))}
           </div>
+          <div className="signal-stage__legend">
+            <span><i className="legend-dot legend-dot--accent" /> High fit</span>
+            <span><i className="legend-dot" /> Normalized source</span>
+          </div>
+        </div>
+
+        <div className="signal-hero__footnote">
+          <span>04 sources</span>
+          <span>01 normalized model</span>
+          <span>Built for triage, not browsing</span>
         </div>
       </section>
 
-      <section className="product-story" id="product">
-        <div className="page-shell">
-          <div className="section-intro section-intro--split">
-            <p className="section-label">01 / Product system</p>
-            <div>
-              <h2>Built for the decision before the application.</h2>
-              <p>
-                Marketplaces are optimized to keep you browsing. Glimpsy is
-                optimized to help you decide what deserves your attention.
-              </p>
-            </div>
-          </div>
+      <section className="method-section" id="method">
+        <header className="section-heading section-heading--wide">
+          <span className="mono-label">Method / 02</span>
+          <h2>One decision surface between you and four noisy marketplaces.</h2>
+        </header>
 
-          <div className="product-bento">
-            <article className="bento-card bento-card--feed">
-              <div className="bento-card__copy">
-                <span className="bento-card__index">01</span>
-                <div>
-                  <h3>Signal-first feed</h3>
-                  <p>
-                    Commercial context is visible before long descriptions:
-                    fit, budget, timeline, stack, and source.
-                  </p>
-                </div>
-              </div>
-
-              <div className="feed-visual" aria-hidden="true">
-                <div className="feed-visual__bar">
-                  <span>Best opportunities</span>
-                  <span>Today</span>
-                </div>
-                <div className="feed-visual__row feed-visual__row--active">
-                  <span className="feed-visual__score">96</span>
-                  <div>
-                    <strong>Next.js SaaS dashboard</strong>
-                    <small>Upwork · 2–3 weeks</small>
-                  </div>
-                  <b>$1.8k</b>
-                </div>
-                <div className="feed-visual__row">
-                  <span className="feed-visual__score">91</span>
-                  <div>
-                    <strong>Premium marketing site</strong>
-                    <small>Contra · 1–2 weeks</small>
-                  </div>
-                  <b>$1.2k</b>
-                </div>
-                <div className="feed-visual__row">
-                  <span className="feed-visual__score">87</span>
-                  <div>
-                    <strong>Frontend product sprint</strong>
-                    <small>Freelancer · 3 weeks</small>
-                  </div>
-                  <b>$900</b>
-                </div>
-              </div>
-            </article>
-
-            <article className="bento-card bento-card--matching">
-              <div className="bento-card__copy">
-                <span className="bento-card__index">02</span>
-                <div>
-                  <h3>Fit is a signal, not decoration.</h3>
-                  <p>
-                    Match scoring is designed around your stack and preferred
-                    project profile, not platform popularity.
-                  </p>
-                </div>
-              </div>
-
-              <div className="match-orbit" aria-hidden="true">
-                <div className="match-orbit__ring match-orbit__ring--outer" />
-                <div className="match-orbit__ring match-orbit__ring--inner" />
-                <div className="match-orbit__center">
-                  <strong>96</strong>
-                  <span>Strong fit</span>
-                </div>
-                <span className="match-orbit__skill match-orbit__skill--one">Next.js</span>
-                <span className="match-orbit__skill match-orbit__skill--two">TypeScript</span>
-                <span className="match-orbit__skill match-orbit__skill--three">Figma</span>
-              </div>
-            </article>
-
-            <article className="bento-card bento-card--normalization">
-              <div className="bento-card__copy">
-                <span className="bento-card__index">03</span>
-                <div>
-                  <h3>Different platforms. One language.</h3>
-                  <p>
-                    Source-specific payloads are normalized before they reach
-                    the interface, keeping every opportunity consistent.
-                  </p>
-                </div>
-              </div>
-
-              <div className="normalization-map" aria-hidden="true">
-                <div className="normalization-map__sources">
-                  <span>UP</span>
-                  <span>CO</span>
-                  <span>FR</span>
-                  <span>PH</span>
-                </div>
-                <div className="normalization-map__lines">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                </div>
-                <div className="normalization-map__core">
-                  <span>G</span>
-                  <small>Normalized opportunity</small>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="workflow-section" id="workflow">
-        <div className="page-shell">
-          <div className="section-intro section-intro--split">
-            <p className="section-label">02 / Workflow</p>
-            <div>
-              <h2>Four quiet steps between noise and action.</h2>
-              <p>
-                The system removes platform inconsistency before it reaches
-                your decision-making flow.
-              </p>
-            </div>
-          </div>
-
-          <ol className="workflow-track">
+        <div className="method-grid">
+          <ol className="method-steps">
             <li>
-              <span className="workflow-track__number">01</span>
-              <div className="workflow-track__icon" aria-hidden="true">⌁</div>
-              <h3>Collect</h3>
-              <p>Bring available project signals into one ingestion layer.</p>
+              <span>01</span>
+              <div><strong>Collect</strong><p>Bring project signals into one ingestion layer.</p></div>
             </li>
             <li>
-              <span className="workflow-track__number">02</span>
-              <div className="workflow-track__icon" aria-hidden="true">◇</div>
-              <h3>Normalize</h3>
-              <p>Translate every source into one stable opportunity contract.</p>
+              <span>02</span>
+              <div><strong>Normalize</strong><p>Translate platform-specific fields into one stable contract.</p></div>
             </li>
             <li>
-              <span className="workflow-track__number">03</span>
-              <div className="workflow-track__icon" aria-hidden="true">◎</div>
-              <h3>Prioritize</h3>
-              <p>Surface the strongest fit instead of the loudest listing.</p>
+              <span>03</span>
+              <div><strong>Rank</strong><p>Put commercial value and stack relevance ahead of feed chronology.</p></div>
             </li>
             <li>
-              <span className="workflow-track__number">04</span>
-              <div className="workflow-track__icon" aria-hidden="true">↗</div>
-              <h3>Act</h3>
-              <p>Open the original source only after the project earns it.</p>
+              <span>04</span>
+              <div><strong>Act</strong><p>Open the source only after a project earns your attention.</p></div>
             </li>
           </ol>
-        </div>
-      </section>
 
-      <section className="closing-section">
-        <div className="page-shell closing-panel">
-          <div className="closing-panel__glow" aria-hidden="true" />
-          <p className="section-label">Your next good project is already out there.</p>
-          <h2>Spend less time searching. Spend more time choosing well.</h2>
-          <div className="closing-panel__footer">
-            <p>
-              Start with the current demo workspace while the live-source layer
-              is being connected.
-            </p>
-            <Link className="button button--light" href="/opportunities">
-              Open Glimpsy
-              <span aria-hidden="true">↗</span>
-            </Link>
+          <div className="normalization-board" aria-label="Example of Glimpsy normalization">
+            <div className="normalization-board__raw">
+              <span className="mono-label">Incoming fragments</span>
+              <p>“expert React dev”</p>
+              <p>“$2k–$3.5k fixed”</p>
+              <p>“3–4 weeks”</p>
+              <p>“Next.js / GSAP / Vercel”</p>
+              <p>“remote worldwide”</p>
+            </div>
+            <div className="normalization-board__axis" aria-hidden="true">
+              <span>normalize</span>
+              <i />
+            </div>
+            <div className="normalization-board__output">
+              <span className="mono-label">Decision record</span>
+              <strong>92 / strong fit</strong>
+              <dl>
+                <div><dt>Budget</dt><dd>$2,000–$3,500</dd></div>
+                <div><dt>Timeline</dt><dd>3–4 weeks</dd></div>
+                <div><dt>Stack</dt><dd>Next.js + GSAP</dd></div>
+                <div><dt>Source</dt><dd>Contra</dd></div>
+              </dl>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer className="site-footer">
-        <div className="page-shell site-footer__inner">
-          <Link className="brand brand--footer" href="/">
-            <span className="brand-mark" aria-hidden="true">G</span>
-            <span>Glimpsy</span>
-          </Link>
-          <p>Opportunity intelligence for independent web developers.</p>
-          <span>Demo product · 2026</span>
+      <section className="signals-section" id="signals">
+        <header className="section-heading">
+          <span className="mono-label">Signals / 03</span>
+          <h2>Read the commercial reality before the long brief.</h2>
+          <p>Every visual priority mirrors the decision freelancers actually make.</p>
+        </header>
+
+        <div className="signal-principles">
+          <article>
+            <span>01</span>
+            <h3>Budget first.</h3>
+            <p>Fixed or hourly value is surfaced before a paragraph of client context.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Fit with reasons.</h3>
+            <p>The score sits beside the stack and delivery shape it is meant to summarize.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Timeline stays visible.</h3>
+            <p>Duration and explicit deadlines remain separate so urgency is never invented.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Source stays traceable.</h3>
+            <p>Normalization removes inconsistency, not provenance. The original listing is always one action away.</p>
+          </article>
         </div>
+      </section>
+
+      <section className="workspace-preview-section">
+        <div className="workspace-preview-section__copy">
+          <span className="mono-label mono-label--light">Workspace / 04</span>
+          <h2>A queue designed to end browsing.</h2>
+          <p>
+            Search, filter, shortlist, inspect full project details, and jump to the original source without losing context.
+          </p>
+          <Link className="solid-action solid-action--light" href="/opportunities">
+            Open workspace <span aria-hidden="true">↗</span>
+          </Link>
+        </div>
+
+        <div className="workspace-preview" aria-hidden="true">
+          <div className="workspace-preview__bar">
+            <span>Discover</span>
+            <span>6 opportunities</span>
+          </div>
+          {previewOpportunities.slice(0, 3).map((opportunity, index) => (
+            <div className="workspace-preview__row" key={opportunity.id}>
+              <span>0{index + 1}</span>
+              <div><strong>{opportunity.title}</strong><small>{opportunity.skills.slice(0, 2).join(" · ")}</small></div>
+              <strong>{opportunity.matchScore}</strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="marketing-footer">
+        <div>
+          <span className="wordmark wordmark--footer"><span className="wordmark__glyph">G</span>Glimpsy</span>
+          <p>Opportunity intelligence for independent web developers.</p>
+        </div>
+        <Link className="text-link text-link--dark" href="/opportunities">Enter feed <span aria-hidden="true">↗</span></Link>
+        <span className="mono-label">Demo product / 2026</span>
       </footer>
     </main>
   );
