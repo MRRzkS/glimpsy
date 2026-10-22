@@ -103,14 +103,20 @@ test.describe("opportunity workspace", () => {
     await trigger.click();
     const dialog = page.getByRole("dialog");
     const closeButton = dialog.getByRole("button", { name: "Close opportunity details" });
+    const openOriginalLink = dialog.getByRole("link", { name: /Open original/i });
 
     await expect(dialog).toBeVisible();
     await expect(closeButton).toBeFocused();
     await expect(dialog.getByRole("heading", { level: 2 })).toHaveText("Build a polished SaaS dashboard from Figma");
     await expect(dialog).toContainText("$1,200–$1,800");
     await expect(dialog).toContainText("Prototype fit context");
-    await expect(dialog.getByRole("link", { name: /Open original/i })).toBeVisible();
+    await expect(openOriginalLink).toBeVisible();
     await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("hidden");
+
+    await page.keyboard.press("Shift+Tab");
+    await expect(openOriginalLink).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(closeButton).toBeFocused();
 
     await saveQualityScreenshot(page, `detail-${testInfo.project.name}`);
 
