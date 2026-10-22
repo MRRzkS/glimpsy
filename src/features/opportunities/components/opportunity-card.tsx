@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import type { FreelanceOpportunity } from "../types/opportunity";
 import {
   formatOpportunityBudget,
@@ -10,83 +9,73 @@ import { SourceBadge } from "./source-badge";
 
 interface OpportunityCardProps {
   opportunity: FreelanceOpportunity;
+  rank: number;
   isSaved: boolean;
+  onOpenOpportunity: (opportunity: FreelanceOpportunity) => void;
   onToggleSaved: (opportunityId: string) => void;
 }
 
 export function OpportunityCard({
   opportunity,
+  rank,
   isSaved,
+  onOpenOpportunity,
   onToggleSaved,
 }: OpportunityCardProps) {
-  const matchScoreStyle = {
-    "--match-score": `${opportunity.matchScore * 3.6}deg`,
-  } as CSSProperties;
-
   return (
-    <article className="opportunity-card">
-      <div className="opportunity-card__main">
-        <div className="opportunity-card__topline">
-          <div className="opportunity-card__source-line">
-            <SourceBadge platform={opportunity.source} />
-            <span className="opportunity-card__divider" aria-hidden="true">•</span>
-            <span>Posted {formatPostedDate(opportunity.postedAt)}</span>
-          </div>
+    <article className="opportunity-row" data-saved={isSaved}>
+      <div className="opportunity-row__rank" aria-hidden="true">
+        {rank.toString().padStart(2, "0")}
+      </div>
 
+      <div className="opportunity-row__body">
+        <div className="opportunity-row__meta">
+          <SourceBadge platform={opportunity.source} />
+          <span>Posted {formatPostedDate(opportunity.postedAt)}</span>
+          <span>{formatOpportunityRemoteType(opportunity.remoteType)}</span>
+        </div>
+
+        <button
+          className="opportunity-row__title-button"
+          type="button"
+          onClick={() => onOpenOpportunity(opportunity)}
+          aria-label={`View details for ${opportunity.title}`}
+        >
+          <h3>{opportunity.title}</h3>
+          <span aria-hidden="true">↗</span>
+        </button>
+
+        <p className="opportunity-row__summary">{opportunity.description}</p>
+
+        <div className="opportunity-row__skills" aria-label="Required skills">
+          {opportunity.skills.map((skill) => (
+            <span key={skill}>{skill}</span>
+          ))}
+        </div>
+
+        <div className="opportunity-row__footer">
+          <span>{formatOpportunityExperience(opportunity.experienceLevel)}</span>
+          <span>{opportunity.paymentType === "fixed" ? "Fixed price" : "Hourly"}</span>
           <button
-            className="save-button"
-            data-saved={isSaved}
             type="button"
+            className="save-control"
+            data-saved={isSaved}
             aria-pressed={isSaved}
             aria-label={isSaved ? "Remove from shortlist" : "Add to shortlist"}
             onClick={() => onToggleSaved(opportunity.id)}
           >
-            <span aria-hidden="true">{isSaved ? "◆" : "◇"}</span>
-            {isSaved ? "Saved" : "Save"}
+            <span aria-hidden="true">{isSaved ? "●" : "○"}</span>
+            {isSaved ? "Shortlisted" : "Shortlist"}
           </button>
-        </div>
-
-        <div className="opportunity-card__heading">
-          <h3>{opportunity.title}</h3>
-          <p>{opportunity.description}</p>
-        </div>
-
-        <div className="skill-list" aria-label="Required skills">
-          {opportunity.skills.map((skill) => (
-            <span className="skill-chip" key={skill}>
-              {skill}
-            </span>
-          ))}
-        </div>
-
-        <div className="opportunity-card__footer">
-          <div className="opportunity-card__secondary-meta">
-            <span>{formatOpportunityExperience(opportunity.experienceLevel)}</span>
-            <span>{formatOpportunityRemoteType(opportunity.remoteType)}</span>
-            <span>{opportunity.paymentType === "fixed" ? "Fixed price" : "Hourly"}</span>
-          </div>
-
-          <a
-            className="source-link"
-            href={opportunity.sourceUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open original
-            <span aria-hidden="true">↗</span>
-          </a>
         </div>
       </div>
 
-      <aside className="opportunity-card__signals" aria-label="Opportunity signals">
-        <div className="match-gauge" style={matchScoreStyle}>
-          <div className="match-gauge__inner">
-            <strong>{opportunity.matchScore}</strong>
-            <span>fit</span>
-          </div>
+      <aside className="opportunity-row__commercial" aria-label="Commercial signals">
+        <div className="fit-score" data-high={opportunity.matchScore >= 90}>
+          <strong>{opportunity.matchScore}</strong>
+          <span>fit</span>
         </div>
-
-        <dl className="signal-metrics">
+        <dl>
           <div>
             <dt>Budget</dt>
             <dd>{formatOpportunityBudget(opportunity)}</dd>
