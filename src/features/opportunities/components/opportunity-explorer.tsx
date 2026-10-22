@@ -32,6 +32,15 @@ const platformFilters: PlatformFilter[] = [
   "peopleperhour",
 ];
 
+const FOCUSABLE_ELEMENT_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 function opportunityMatchesSearch(
   opportunity: FreelanceOpportunity,
   normalizedSearchTerm: string,
@@ -69,6 +78,7 @@ function sortOpportunities(
 
 export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const detailPanelRef = useRef<HTMLElement>(null);
   const detailCloseButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -111,13 +121,40 @@ export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps)
     function handleKeyboardShortcut(event: KeyboardEvent) {
       const isSearchShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
 
-      if (isSearchShortcut) {
+      if (isSearchShortcut && !selectedOpportunity) {
         event.preventDefault();
         searchInputRef.current?.focus();
       }
 
       if (event.key === "Escape" && selectedOpportunity) {
         setSelectedOpportunity(null);
+        return;
+      }
+
+      if (event.key !== "Tab" || !selectedOpportunity || !detailPanelRef.current) {
+        return;
+      }
+
+      const focusableElements = Array.from(
+        detailPanelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_ELEMENT_SELECTOR),
+      ).filter((element) => !element.hasAttribute("disabled"));
+
+      const firstFocusableElement = focusableElements.at(0);
+      const lastFocusableElement = focusableElements.at(-1);
+
+      if (!firstFocusableElement || !lastFocusableElement) {
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === firstFocusableElement) {
+        event.preventDefault();
+        lastFocusableElement.focus();
+        return;
+      }
+
+      if (!event.shiftKey && document.activeElement === lastFocusableElement) {
+        event.preventDefault();
+        firstFocusableElement.focus();
       }
     }
 
@@ -272,6 +309,7 @@ export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps)
       {selectedOpportunity ? (
         <div className="detail-backdrop" role="presentation" onMouseDown={() => setSelectedOpportunity(null)}>
           <aside
+            ref={detailPanelRef}
             className="opportunity-detail"
             role="dialog"
             aria-modal="true"
