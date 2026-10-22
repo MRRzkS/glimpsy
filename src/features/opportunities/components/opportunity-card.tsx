@@ -22,6 +22,8 @@ export function OpportunityCard({
   onOpenOpportunity,
   onToggleSaved,
 }: OpportunityCardProps) {
+  const primaryStackSignals = opportunity.skills.slice(0, 2).join(" + ");
+
   return (
     <article className="opportunity-row" data-saved={isSaved}>
       <div className="opportunity-row__rank" aria-hidden="true">
@@ -42,7 +44,10 @@ export function OpportunityCard({
           aria-label={`View details for ${opportunity.title}`}
         >
           <h3>{opportunity.title}</h3>
-          <span aria-hidden="true">↗</span>
+          <span className="inspect-affordance" aria-hidden="true">
+            <span>Inspect</span>
+            ↗
+          </span>
         </button>
 
         <p className="opportunity-row__summary">{opportunity.description}</p>
@@ -56,6 +61,9 @@ export function OpportunityCard({
         <div className="opportunity-row__footer">
           <span>{formatOpportunityExperience(opportunity.experienceLevel)}</span>
           <span>{opportunity.paymentType === "fixed" ? "Fixed price" : "Hourly"}</span>
+          <span className="opportunity-row__stack-signal">
+            Stack signal <strong>{primaryStackSignals}</strong>
+          </span>
           <button
             type="button"
             className="save-control"
