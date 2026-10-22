@@ -28,9 +28,7 @@ export function getPlatformLabel(platform: FreelancePlatform): string {
   return platformLabels[platform];
 }
 
-export function formatOpportunityBudget(
-  opportunity: FreelanceOpportunity,
-): string {
+export function formatOpportunityBudget(opportunity: FreelanceOpportunity): string {
   const { budgetMinimum, budgetMaximum, currency, paymentType } = opportunity;
 
   if (!currency || (budgetMinimum === null && budgetMaximum === null)) {
@@ -42,17 +40,13 @@ export function formatOpportunityBudget(
     currency,
     maximumFractionDigits: 0,
   });
-
   const suffix = paymentType === "hourly" ? "/hr" : "";
 
   if (budgetMinimum !== null && budgetMaximum !== null) {
-    return `${amountFormatter.format(budgetMinimum)}–${amountFormatter.format(
-      budgetMaximum,
-    )}${suffix}`;
+    return `${amountFormatter.format(budgetMinimum)}–${amountFormatter.format(budgetMaximum)}${suffix}`;
   }
 
-  const knownBudget = budgetMinimum ?? budgetMaximum;
-  return `${amountFormatter.format(knownBudget ?? 0)}${suffix}`;
+  return `${amountFormatter.format(budgetMinimum ?? budgetMaximum ?? 0)}${suffix}`;
 }
 
 export function formatOpportunityExperience(
@@ -71,6 +65,17 @@ export function formatPostedDate(postedAt: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric",
   }).format(new Date(postedAt));
+}
+
+export function formatOpportunityDeadline(deadline: string | null): string {
+  if (!deadline) {
+    return "No stated deadline";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(deadline));
 }
