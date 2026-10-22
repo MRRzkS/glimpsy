@@ -22,6 +22,15 @@ export default defineConfig({
       },
     },
     {
+      name: "tablet-chromium",
+      use: {
+        browserName: "chromium",
+        viewport: { width: 820, height: 1180 },
+        deviceScaleFactor: 1,
+        hasTouch: true,
+      },
+    },
+    {
       name: "mobile-chromium",
       use: {
         browserName: "chromium",
