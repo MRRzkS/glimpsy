@@ -69,6 +69,8 @@ function sortOpportunities(
 
 export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const detailCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformFilter>("all");
   const [sortBy, setSortBy] = useState<OpportunitySort>("fit");
@@ -121,6 +123,24 @@ export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps)
 
     window.addEventListener("keydown", handleKeyboardShortcut);
     return () => window.removeEventListener("keydown", handleKeyboardShortcut);
+  }, [selectedOpportunity]);
+
+  useEffect(() => {
+    if (!selectedOpportunity) {
+      return;
+    }
+
+    previouslyFocusedElementRef.current = document.activeElement as HTMLElement | null;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusFrame = window.requestAnimationFrame(() => detailCloseButtonRef.current?.focus());
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousBodyOverflow;
+      previouslyFocusedElementRef.current?.focus();
+    };
   }, [selectedOpportunity]);
 
   const visibleOpportunities = useMemo(() => {
@@ -256,11 +276,13 @@ export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps)
             role="dialog"
             aria-modal="true"
             aria-labelledby="opportunity-detail-title"
+            aria-describedby="opportunity-detail-summary"
             onMouseDown={(event) => event.stopPropagation()}
           >
             <div className="opportunity-detail__header">
               <SourceBadge platform={selectedOpportunity.source} />
               <button
+                ref={detailCloseButtonRef}
                 className="detail-close"
                 type="button"
                 aria-label="Close opportunity details"
@@ -273,14 +295,24 @@ export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps)
             <div className="opportunity-detail__intro">
               <span className="mono-label">Posted {formatPostedDate(selectedOpportunity.postedAt)}</span>
               <h2 id="opportunity-detail-title">{selectedOpportunity.title}</h2>
-              <p>{selectedOpportunity.description}</p>
+              <p id="opportunity-detail-summary">{selectedOpportunity.description}</p>
             </div>
 
-            <dl className="opportunity-detail__facts">
-              <div>
-                <dt>Fit</dt>
-                <dd>{selectedOpportunity.matchScore}/100</dd>
+            <section className="opportunity-detail__fit-context" aria-label="Fit context">
+              <div className="detail-fit-score">
+                <strong>{selectedOpportunity.matchScore}</strong>
+                <span>fit</span>
               </div>
+              <div>
+                <span className="mono-label">Prototype fit context</span>
+                <h3>{selectedOpportunity.skills.slice(0, 2).join(" + ")}</h3>
+                <p>
+                  Use the score as a triage signal, then review the stack, scope, and commercial terms before applying.
+                </p>
+              </div>
+            </section>
+
+            <dl className="opportunity-detail__facts">
               <div>
                 <dt>Budget</dt>
                 <dd>{formatOpportunityBudget(selectedOpportunity)}</dd>
@@ -300,6 +332,10 @@ export function OpportunityExplorer({ opportunities }: OpportunityExplorerProps)
               <div>
                 <dt>Location</dt>
                 <dd>{formatOpportunityRemoteType(selectedOpportunity.remoteType)}</dd>
+              </div>
+              <div>
+                <dt>Source</dt>
+                <dd>{getPlatformLabel(selectedOpportunity.source)}</dd>
               </div>
             </dl>
 
