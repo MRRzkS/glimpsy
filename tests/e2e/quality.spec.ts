@@ -37,6 +37,25 @@ async function expectReadableVisibleText(page: Page) {
   expect(undersizedText, JSON.stringify(undersizedText, null, 2)).toEqual([]);
 }
 
+async function expectModernSansTypography(page: Page) {
+  const typography = await page.evaluate(() => {
+    const heading = document.querySelector("h1");
+
+    return {
+      bodyFontFamily: window.getComputedStyle(document.body).fontFamily,
+      headingFontFamily: heading ? window.getComputedStyle(heading).fontFamily : "",
+    };
+  });
+
+  const bodyFontFamily = typography.bodyFontFamily.toLowerCase();
+  const headingFontFamily = typography.headingFontFamily.toLowerCase();
+
+  expect(bodyFontFamily).toContain("inter");
+  expect(headingFontFamily).toContain("inter");
+  expect(bodyFontFamily).not.toMatch(/times|serif/);
+  expect(headingFontFamily).not.toMatch(/times|serif/);
+}
+
 async function saveQualityScreenshot(page: Page, name: string) {
   await page.screenshot({
     path: `test-results/visual/${name}.png`,
@@ -58,6 +77,7 @@ test.describe("landing experience", () => {
 
     await expectNoHorizontalOverflow(page);
     await expectReadableVisibleText(page);
+    await expectModernSansTypography(page);
     await saveQualityScreenshot(page, `landing-${testInfo.project.name}`);
   });
 });
@@ -78,6 +98,7 @@ test.describe("opportunity workspace", () => {
 
     await expectNoHorizontalOverflow(page);
     await expectReadableVisibleText(page);
+    await expectModernSansTypography(page);
     await saveQualityScreenshot(page, `workspace-${testInfo.project.name}`);
   });
 
