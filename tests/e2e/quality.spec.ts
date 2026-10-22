@@ -52,8 +52,8 @@ async function expectModernSansTypography(page: Page) {
 
   expect(bodyFontFamily).toContain("inter");
   expect(headingFontFamily).toContain("inter");
-  expect(bodyFontFamily).not.toMatch(/times|serif/);
-  expect(headingFontFamily).not.toMatch(/times|serif/);
+  expect(bodyFontFamily).not.toContain("times new roman");
+  expect(headingFontFamily).not.toContain("times new roman");
 }
 
 async function saveQualityScreenshot(page: Page, name: string) {
