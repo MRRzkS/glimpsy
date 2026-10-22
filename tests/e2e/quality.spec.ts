@@ -22,7 +22,7 @@ async function expectReadableTypography(page: Page) {
 
   expect(typography.bodyFontFamily).not.toContain("times");
   expect(typography.headingFontFamily).not.toContain("times");
-  expect(typography.bodyFontFamily).toMatch(/helvetica|arial|sans-serif/);
+  expect(typography.bodyFontFamily).toMatch(/inter|helvetica|arial|sans-serif/);
 }
 
 async function expectNoConsoleErrors(page: Page, errors: string[]) {
@@ -98,17 +98,26 @@ test.describe("opportunity workspace", () => {
     await expect(page.locator("article.opportunity-row").first()).toContainText("Build a polished SaaS dashboard from Figma");
   });
 
-  test("detail inspection stays in context and closes with Escape", async ({ page }) => {
-    await page.getByRole("button", { name: /View details for Build a polished SaaS dashboard/i }).click();
+  test("detail inspection traps attention in context and restores it on close", async ({ page }, testInfo) => {
+    const trigger = page.getByRole("button", { name: /View details for Build a polished SaaS dashboard/i });
+    await trigger.click();
     const dialog = page.getByRole("dialog");
+    const closeButton = dialog.getByRole("button", { name: "Close opportunity details" });
 
     await expect(dialog).toBeVisible();
+    await expect(closeButton).toBeFocused();
     await expect(dialog.getByRole("heading", { level: 2 })).toHaveText("Build a polished SaaS dashboard from Figma");
     await expect(dialog).toContainText("$1,200–$1,800");
+    await expect(dialog).toContainText("Prototype fit context");
     await expect(dialog.getByRole("link", { name: /Open original/i })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("hidden");
+
+    await saveQualityScreenshot(page, `detail-${testInfo.project.name}`);
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
   });
 
   test("shortlist persists across reload and is filterable", async ({ page }) => {
